@@ -15,10 +15,7 @@ echo ""
 
 # Build the image
 echo "📦 Building image..."
-docker build -t "${FULL_IMAGE}" \
-    --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
-    --build-arg VCS_REF=$(git rev-parse --short HEAD) \
-    .
+docker build -t "${FULL_IMAGE}" .
 
 # Also tag as latest if building a version
 if [ "$VERSION" != "latest" ]; then
@@ -42,4 +39,11 @@ fi
 
 echo ""
 echo "🧪 To test locally:"
-echo "   docker run -p 8082:8082 -e WEBHOOK_SECRET=test ${FULL_IMAGE}"
+echo "   # With kubeconfig:"
+echo "   docker run -p 8082:8082 \\"
+echo "     -v ~/.kube/config:/home/kgh/.kube/config:ro \\"
+echo "     -e WEBHOOK_SECRET=test \\"
+echo "     ${FULL_IMAGE}"
+echo ""
+echo "   # Or in-cluster mode (requires K8s deployment):"
+echo "   kubectl apply -f deployments/kubernetes/"

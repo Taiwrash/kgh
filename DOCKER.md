@@ -15,11 +15,22 @@ docker pull taiwrash/kgh:latest
 
 ## Running Locally
 
+### With Kubeconfig (Local Development)
+
 ```bash
 docker run -p 8082:8082 \
+  -v ~/.kube/config:/home/kgh/.kube/config:ro \
   -e WEBHOOK_SECRET=your-secret \
   -e GITHUB_TOKEN=your-token \
   taiwrash/kgh:latest
+```
+
+### In-Cluster (Production)
+
+Deploy to Kubernetes where it will automatically use in-cluster config:
+
+```bash
+kubectl apply -f deployments/kubernetes/
 ```
 
 ## Image Features

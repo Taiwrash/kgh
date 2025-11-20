@@ -9,14 +9,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 var (
 	clientsetOnce sync.Once
 	clientset     *kubernetes.Clientset
 	clientsetErr  error
-	
+
 	dynamicOnce   sync.Once
 	dynamicClient dynamic.Interface
 	dynamicErr    error
@@ -31,14 +30,14 @@ func GetClientset(inCluster bool) (*kubernetes.Clientset, error) {
 			clientsetErr = fmt.Errorf("failed to get kubernetes config: %w", err)
 			return
 		}
-		
+
 		clientset, err = kubernetes.NewForConfig(config)
 		if err != nil {
 			clientsetErr = fmt.Errorf("failed to create kubernetes clientset: %w", err)
 			return
 		}
 	})
-	
+
 	return clientset, clientsetErr
 }
 
@@ -51,14 +50,14 @@ func GetDynamicClient(inCluster bool) (dynamic.Interface, error) {
 			dynamicErr = fmt.Errorf("failed to get kubernetes config: %w", err)
 			return
 		}
-		
+
 		dynamicClient, err = dynamic.NewForConfig(config)
 		if err != nil {
 			dynamicErr = fmt.Errorf("failed to create dynamic client: %w", err)
 			return
 		}
 	})
-	
+
 	return dynamicClient, dynamicErr
 }
 
@@ -72,13 +71,13 @@ func getConfig(inCluster bool) (*rest.Config, error) {
 		}
 		return config, nil
 	}
-	
+
 	// Use kubeconfig file (local development)
-	kubeconfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
+	kubeconfig := filepath.Join("~", ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build config from kubeconfig: %w", err)
 	}
-	
+
 	return config, nil
 }
