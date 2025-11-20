@@ -52,7 +52,15 @@ NAMESPACE=${NAMESPACE:-default}
 # Generate webhook secret if not provided
 read -p "Enter webhook secret (or press Enter to generate): " WEBHOOK_SECRET
 if [ -z "$WEBHOOK_SECRET" ]; then
-    WEBHOOK_SECRET=$(openssl rand -hex 32)
+    # Try multiple methods to generate random secret
+    if command -v openssl &> /dev/null; then
+        WEBHOOK_SECRET=$(openssl rand -hex 32)
+    elif [ -f /dev/urandom ]; then
+        WEBHOOK_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1)
+    else
+        # Fallback to date-based random
+        WEBHOOK_SECRET=$(date +%s%N | sha256sum | head -c 64)
+    fi
     echo -e "${GREEN}Generated webhook secret: ${WEBHOOK_SECRET}${NC}"
 fi
 
