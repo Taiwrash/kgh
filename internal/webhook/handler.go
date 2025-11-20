@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Taiwrash/k8s-gitops/internal/k8s"
+	"github.com/Taiwrash/kgh/internal/k8s"
 	"github.com/google/go-github/v79/github"
 )
 

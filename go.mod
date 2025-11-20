@@ -1,4 +1,4 @@
-module github.com/Taiwrash/k8s-gitops
+module github.com/Taiwrash/kgh
 
 go 1.25.4
 
