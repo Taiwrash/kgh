@@ -1,5 +1,5 @@
 #!/bin/bash
-# GitOps Controller - Quick Install Script for Homelab
+# KGH - Quick Install Script for Homelab
 # This script makes it easy to install the GitOps controller on your Kubernetes cluster
 
 set -e
@@ -11,7 +11,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}╔═══════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║   GitOps Controller - Homelab Installation   ║${NC}"
+echo -e "${GREEN}║   KGH - Homelab Installation   ║${NC}"
 echo -e "${GREEN}╚═══════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -80,7 +80,7 @@ if [ "$CONFIRM" != "y" ]; then
 fi
 
 echo ""
-echo -e "${YELLOW}Installing GitOps Controller...${NC}"
+echo -e "${YELLOW}Installing KGH...${NC}"
 
 if [ "$USE_HELM" = true ]; then
     # Install using Helm

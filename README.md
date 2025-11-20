@@ -1,6 +1,6 @@
-# GitOps Kubernetes Controller
+# KGH - Kubernetes GitOps Homelab
 
-A lightweight GitOps controller for Kubernetes that automatically applies changes from your Git repository to your homelab cluster. Edit YAML files, commit to Git, and watch your cluster update automatically!
+A lightweight GitOps controller for Kubernetes homelab clusters that automatically applies changes from your Git repository. Edit YAML files, commit to Git, and watch your cluster update automatically!
 
 ## 🚀 Features
 
@@ -54,8 +54,8 @@ A lightweight GitOps controller for Kubernetes that automatically applies change
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Taiwrash/k8s-gitops.git
-   cd k8s-gitops
+   git clone https://github.com/Taiwrash/kgh.git
+   cd kgh
    ```
 
 2. **Set up environment variables**:

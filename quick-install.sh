@@ -1,5 +1,5 @@
 #!/bin/bash
-# GitOps Controller - Non-Interactive Quick Install
+# KGH - Non-Interactive Quick Install
 # Usage: curl -fsSL https://raw.githubusercontent.com/Taiwrash/kgh/main/quick-install.sh | bash -s -- <namespace> <webhook-secret>
 
 set -e
@@ -11,7 +11,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo -e "${GREEN}╔═══════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║   GitOps Controller - Quick Install          ║${NC}"
+echo -e "${GREEN}║   KGH - Quick Install          ║${NC}"
 echo -e "${GREEN}╚═══════════════════════════════════════════════╝${NC}"
 echo ""
 

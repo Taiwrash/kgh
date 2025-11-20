@@ -1,6 +1,6 @@
-# GitOps Controller Landing Page
+# KGH Landing Page
 
-A modern, dark-themed landing page for the GitOps Controller project.
+A modern, dark-themed landing page for the KGH project.
 
 ## Features
 
