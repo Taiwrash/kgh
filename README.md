@@ -30,7 +30,7 @@ A lightweight GitOps controller for Kubernetes that automatically applies change
        │ (Webhook)
        ▼
 ┌─────────────────────┐
-│ GitOps Controller   │
+│ KGH - Kubernetes GitOps Homelab   │
 │                     │
 │ ┌─────────────────┐ │
 │ │ Webhook Handler │ │
@@ -79,15 +79,15 @@ A lightweight GitOps controller for Kubernetes that automatically applies change
 
 5. **Build and run**:
    ```bash
-   go build -o gitops-controller ./cmd/gitops-controller
-   ./gitops-controller
+   go build -o kgh ./cmd/kgh
+   ./kgh
    ```
 
 ### Option 2: In-Cluster Deployment (Recommended for Production)
 
 1. **Build Docker image**:
    ```bash
-   docker build -t gitops-controller:latest .
+   docker build -t kgh:latest .
    ```
 
 2. **Create Kubernetes secret**:
@@ -116,7 +116,7 @@ A lightweight GitOps controller for Kubernetes that automatically applies change
 
 4. **Get the external IP**:
    ```bash
-   kubectl get svc gitops-controller
+   kubectl get svc kgh
    ```
 
 ## 🔧 GitHub Webhook Configuration
@@ -224,10 +224,10 @@ The controller supports **all Kubernetes resource types**, including:
 
 ```bash
 # View controller logs
-kubectl logs -f deployment/gitops-controller
+kubectl logs -f deployment/kgh
 
 # Follow logs in real-time
-kubectl logs -f -l app=gitops-controller
+kubectl logs -f -l app=kgh
 ```
 
 ## 🔒 Security Best Practices
@@ -243,14 +243,14 @@ kubectl logs -f -l app=gitops-controller
 ### Controller not receiving webhooks
 
 1. Check webhook delivery in GitHub (Settings → Webhooks → Recent Deliveries)
-2. Verify the service is accessible: `kubectl get svc gitops-controller`
-3. Check controller logs: `kubectl logs -f deployment/gitops-controller`
+2. Verify the service is accessible: `kubectl get svc kgh`
+3. Check controller logs: `kubectl logs -f deployment/kgh`
 4. Ensure webhook secret matches in both GitHub and Kubernetes secret
 
 ### Resources not applying
 
 1. Check controller logs for errors
-2. Verify RBAC permissions: `kubectl auth can-i create deployments --as=system:serviceaccount:default:gitops-controller`
+2. Verify RBAC permissions: `kubectl auth can-i create deployments --as=system:serviceaccount:default:kgh`
 3. Validate YAML syntax: `kubectl apply --dry-run=client -f your-file.yaml`
 
 ### Permission denied errors

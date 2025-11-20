@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gitops-controller
+  name: kgh
   namespace: default
   labels:
-    app: gitops-controller
+    app: kgh
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gitops-controller
+      app: kgh
   template:
     metadata:
       labels:
-        app: gitops-controller
+        app: kgh
     spec:
-      serviceAccountName: gitops-controller
+      serviceAccountName: kgh
       containers:
       - name: controller
-        image: gitops-controller:latest
+        image: kgh:latest
         imagePullPolicy: IfNotPresent
         ports:
         - name: http
@@ -28,12 +28,12 @@ spec:
         - name: GITHUB_TOKEN
           valueFrom:
             secretKeyRef:
-              name: gitops-controller-secret
+              name: kgh-secret
               key: github-token
         - name: WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
-              name: gitops-controller-secret
+              name: kgh-secret
               key: webhook-secret
         - name: SERVER_PORT
           value: "8082"

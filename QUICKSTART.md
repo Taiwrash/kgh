@@ -28,7 +28,7 @@ kubectl apply -f deployments/kubernetes/secret.yaml
 make deploy
 
 # 4. Get webhook URL
-kubectl get svc gitops-controller
+kubectl get svc kgh
 ```
 
 ## Configure GitHub Webhook

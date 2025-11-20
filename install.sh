@@ -86,7 +86,7 @@ if [ "$USE_HELM" = true ]; then
     # Install using Helm
     echo "Installing with Helm..."
     
-    helm upgrade --install gitops-controller ./helm/gitops-controller \
+    helm upgrade --install kgh ./helm/kgh \
         --namespace "$NAMESPACE" \
         --create-namespace \
         --set github.webhookSecret="$WEBHOOK_SECRET" \
@@ -105,7 +105,7 @@ else
     kubectl apply -f deployments/kubernetes/rbac.yaml
     
     # Create secret
-    kubectl create secret generic gitops-controller-secret \
+    kubectl create secret generic kgh-secret \
         --from-literal=github-token="$GITHUB_TOKEN" \
         --from-literal=webhook-secret="$WEBHOOK_SECRET" \
         --namespace="$NAMESPACE" \
@@ -126,16 +126,16 @@ echo ""
 
 # Wait for deployment
 echo -e "${YELLOW}Waiting for deployment to be ready...${NC}"
-kubectl wait --for=condition=available --timeout=60s deployment/gitops-controller -n "$NAMESPACE" || true
+kubectl wait --for=condition=available --timeout=60s deployment/kgh -n "$NAMESPACE" || true
 
 # Get service info
 echo ""
 echo -e "${YELLOW}Getting webhook URL...${NC}"
 EXTERNAL_IP=""
 for i in {1..30}; do
-    EXTERNAL_IP=$(kubectl get svc gitops-controller -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+    EXTERNAL_IP=$(kubectl get svc kgh -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
     if [ -z "$EXTERNAL_IP" ]; then
-        EXTERNAL_IP=$(kubectl get svc gitops-controller -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || echo "")
+        EXTERNAL_IP=$(kubectl get svc kgh -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || echo "")
     fi
     
     if [ ! -z "$EXTERNAL_IP" ]; then
@@ -154,14 +154,14 @@ if [ ! -z "$EXTERNAL_IP" ]; then
     echo "   - Payload URL: http://$EXTERNAL_IP/webhook"
 else
     echo "   - Payload URL: http://<EXTERNAL-IP>/webhook"
-    echo "     (Get EXTERNAL-IP with: kubectl get svc gitops-controller -n $NAMESPACE)"
+    echo "     (Get EXTERNAL-IP with: kubectl get svc kgh -n $NAMESPACE)"
 fi
 echo "   - Content type: application/json"
 echo "   - Secret: $WEBHOOK_SECRET"
 echo "   - Events: Just the push event"
 echo ""
 echo "2. Test the installation:"
-echo "   kubectl logs -f deployment/gitops-controller -n $NAMESPACE"
+echo "   kubectl logs -f deployment/kgh -n $NAMESPACE"
 echo ""
 echo "3. Push a YAML file to your repo and watch it deploy!"
 echo ""

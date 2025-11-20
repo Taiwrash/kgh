@@ -1,8 +1,8 @@
 .PHONY: build run clean test docker-build docker-push deploy help
 
 # Variables
-BINARY_NAME=gitops-controller
-DOCKER_IMAGE=gitops-controller
+BINARY_NAME=kgh
+DOCKER_IMAGE=kgh
 DOCKER_TAG=latest
 NAMESPACE=default
 
@@ -14,7 +14,7 @@ help: ## Show this help message
 
 build: ## Build the GitOps controller binary
 	@echo "Building $(BINARY_NAME)..."
-	go build -o $(BINARY_NAME) ./cmd/gitops-controller
+	go build -o $(BINARY_NAME) ./cmd/kgh
 	@echo "Build complete: $(BINARY_NAME)"
 
 run: build ## Build and run the controller locally
@@ -73,17 +73,17 @@ undeploy: ## Remove controller from Kubernetes
 	@echo "Undeployment complete"
 
 logs: ## View controller logs
-	kubectl logs -f -l app=gitops-controller -n $(NAMESPACE)
+	kubectl logs -f -l app=kgh -n $(NAMESPACE)
 
 status: ## Check controller status
 	@echo "Controller Status:"
-	kubectl get deployment gitops-controller -n $(NAMESPACE)
+	kubectl get deployment kgh -n $(NAMESPACE)
 	@echo ""
 	@echo "Pods:"
-	kubectl get pods -l app=gitops-controller -n $(NAMESPACE)
+	kubectl get pods -l app=kgh -n $(NAMESPACE)
 	@echo ""
 	@echo "Service:"
-	kubectl get svc gitops-controller -n $(NAMESPACE)
+	kubectl get svc kgh -n $(NAMESPACE)
 
 example-deploy: ## Deploy example resources
 	@echo "Deploying example resources..."

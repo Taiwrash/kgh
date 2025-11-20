@@ -1,5 +1,6 @@
 # Binaries
 main
+kgh
 gitops-controller
 *.exe
 *.dll

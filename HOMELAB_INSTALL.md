@@ -28,13 +28,13 @@ If you prefer manual Helm installation:
 WEBHOOK_SECRET=$(openssl rand -hex 32)
 
 # Install with Helm
-helm install gitops-controller ./helm/gitops-controller \
+helm install kgh ./helm/kgh \
   --namespace default \
   --set github.webhookSecret="$WEBHOOK_SECRET" \
   --set github.token="YOUR_GITHUB_TOKEN"
 
 # Get webhook URL
-kubectl get svc gitops-controller
+kubectl get svc kgh
 ```
 
 ### Method 3: kubectl Install
@@ -46,7 +46,7 @@ For manual kubectl installation:
 kubectl apply -f deployments/kubernetes/rbac.yaml
 
 # 2. Create secret
-kubectl create secret generic gitops-controller-secret \
+kubectl create secret generic kgh-secret \
   --from-literal=github-token="YOUR_TOKEN" \
   --from-literal=webhook-secret="$(openssl rand -hex 32)"
 
@@ -59,7 +59,7 @@ kubectl apply -f deployments/kubernetes/service.yaml
 
 ### Helm Values
 
-Customize your installation by editing `helm/gitops-controller/values.yaml`:
+Customize your installation by editing `helm/kgh/values.yaml`:
 
 ```yaml
 # Number of replicas (for HA)
@@ -67,7 +67,7 @@ replicaCount: 1
 
 # Docker image
 image:
-  repository: gitops-controller
+  repository: kgh
   tag: "latest"
 
 # Service type (LoadBalancer, NodePort, ClusterIP)
@@ -100,7 +100,7 @@ namespace: default
 For multi-node clusters, you can run multiple replicas:
 
 ```bash
-helm upgrade gitops-controller ./helm/gitops-controller \
+helm upgrade kgh ./helm/kgh \
   --set replicaCount=2
 ```
 
@@ -158,7 +158,7 @@ For production homelab with Ingress controller:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: gitops-controller
+  name: kgh
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
@@ -174,7 +174,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: gitops-controller
+            name: kgh
             port:
               number: 80
 ```
@@ -185,24 +185,24 @@ spec:
 
 ```bash
 # Check deployment
-kubectl get deployment gitops-controller
+kubectl get deployment kgh
 
 # Check pods
-kubectl get pods -l app=gitops-controller
+kubectl get pods -l app=kgh
 
 # View logs
-kubectl logs -f deployment/gitops-controller
+kubectl logs -f deployment/kgh
 ```
 
 ### 2. Get Webhook URL
 
 ```bash
 # For LoadBalancer
-kubectl get svc gitops-controller
+kubectl get svc kgh
 
 # For NodePort
 NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
-NODE_PORT=$(kubectl get svc gitops-controller -o jsonpath='{.spec.ports[0].nodePort}')
+NODE_PORT=$(kubectl get svc kgh -o jsonpath='{.spec.ports[0].nodePort}')
 echo "Webhook URL: http://$NODE_IP:$NODE_PORT/webhook"
 ```
 
@@ -255,17 +255,17 @@ kubectl get deployments -w
 
 ```bash
 # Check pod status
-kubectl describe pod -l app=gitops-controller
+kubectl describe pod -l app=kgh
 
 # Check logs
-kubectl logs -l app=gitops-controller
+kubectl logs -l app=kgh
 ```
 
 ### Webhook Not Working
 
 ```bash
 # Check service
-kubectl get svc gitops-controller
+kubectl get svc kgh
 
 # Test health endpoint
 curl http://<SERVICE-IP>/health
@@ -278,10 +278,10 @@ curl http://<SERVICE-IP>/health
 
 ```bash
 # Verify service account
-kubectl get sa gitops-controller
+kubectl get sa kgh
 
 # Check cluster role binding
-kubectl get clusterrolebinding gitops-controller
+kubectl get clusterrolebinding kgh
 ```
 
 ## Upgrading
@@ -289,7 +289,7 @@ kubectl get clusterrolebinding gitops-controller
 ### Helm Upgrade
 
 ```bash
-helm upgrade gitops-controller ./helm/gitops-controller \
+helm upgrade kgh ./helm/kgh \
   --reuse-values \
   --set image.tag=new-version
 ```
@@ -301,7 +301,7 @@ helm upgrade gitops-controller ./helm/gitops-controller \
 kubectl apply -f deployments/kubernetes/deployment.yaml
 
 # Restart pods
-kubectl rollout restart deployment/gitops-controller
+kubectl rollout restart deployment/kgh
 ```
 
 ## Uninstalling
@@ -309,15 +309,15 @@ kubectl rollout restart deployment/gitops-controller
 ### Helm Uninstall
 
 ```bash
-helm uninstall gitops-controller
+helm uninstall kgh
 ```
 
 ### kubectl Uninstall
 
 ```bash
 kubectl delete -f deployments/kubernetes/
-kubectl delete clusterrolebinding gitops-controller
-kubectl delete clusterrole gitops-controller
+kubectl delete clusterrolebinding kgh
+kubectl delete clusterrole kgh
 ```
 
 ## Advanced Configuration
@@ -327,7 +327,7 @@ kubectl delete clusterrole gitops-controller
 Deploy to a specific namespace:
 
 ```bash
-helm install gitops-controller ./helm/gitops-controller \
+helm install kgh ./helm/kgh \
   --namespace gitops-system \
   --create-namespace \
   --set namespace=default  # Target namespace for deployments
@@ -339,12 +339,12 @@ Run separate controllers for different namespaces:
 
 ```bash
 # Controller for production
-helm install gitops-prod ./helm/gitops-controller \
+helm install gitops-prod ./helm/kgh \
   --namespace gitops-system \
   --set namespace=production
 
 # Controller for staging
-helm install gitops-staging ./helm/gitops-controller \
+helm install gitops-staging ./helm/kgh \
   --namespace gitops-system \
   --set namespace=staging
 ```
@@ -360,6 +360,6 @@ helm install gitops-staging ./helm/gitops-controller \
 ## Support
 
 For issues or questions:
-- Check logs: `kubectl logs -f deployment/gitops-controller`
+- Check logs: `kubectl logs -f deployment/kgh`
 - Review GitHub webhook deliveries
 - See main [README.md](../README.md) for more details

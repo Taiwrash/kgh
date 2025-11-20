@@ -59,7 +59,7 @@ kubectl apply -f https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments
 
 # Create secret
 echo "Creating secret..."
-kubectl create secret generic gitops-controller-secret \
+kubectl create secret generic kgh-secret \
     --from-literal=github-token="$GITHUB_TOKEN" \
     --from-literal=webhook-secret="$WEBHOOK_SECRET" \
     --namespace="$NAMESPACE" \
@@ -78,7 +78,7 @@ echo ""
 
 # Wait for deployment
 echo "Waiting for deployment..."
-kubectl wait --for=condition=available --timeout=60s deployment/gitops-controller -n "$NAMESPACE" 2>/dev/null || true
+kubectl wait --for=condition=available --timeout=60s deployment/kgh -n "$NAMESPACE" 2>/dev/null || true
 
 # Get service info
 echo ""
@@ -86,6 +86,6 @@ echo -e "${YELLOW}Webhook Configuration:${NC}"
 echo "  Secret: $WEBHOOK_SECRET"
 echo ""
 echo "Get webhook URL with:"
-echo "  kubectl get svc gitops-controller -n $NAMESPACE"
+echo "  kubectl get svc kgh -n $NAMESPACE"
 echo ""
 echo -e "${GREEN}Next: Configure GitHub webhook with the URL above${NC}"

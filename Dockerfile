@@ -11,7 +11,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gitops-controller ./cmd/gitops-controller
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o kgh ./cmd/kgh
 
 # Final stage
 FROM alpine:latest
@@ -21,10 +21,10 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/gitops-controller .
+COPY --from=builder /app/kgh .
 
 # Expose port
 EXPOSE 8082
 
 # Run the application
-CMD ["./gitops-controller"]
+CMD ["./kgh"]

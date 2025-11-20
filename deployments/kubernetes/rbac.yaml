@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: gitops-controller
+  name: kgh
   namespace: default
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: gitops-controller
+  name: kgh
 rules:
   # Allow all operations on all resources for GitOps
   - apiGroups: ["*"]
@@ -17,12 +17,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: gitops-controller
+  name: kgh
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: gitops-controller
+  name: kgh
 subjects:
   - kind: ServiceAccount
-    name: gitops-controller
+    name: kgh
     namespace: default
