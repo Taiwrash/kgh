@@ -4,7 +4,7 @@
 
 set -e
 
-VERSION="${1:-latest}"
+VERSION="${v1:-latest}"
 IMAGE_NAME="taiwrash/kgh"
 FULL_IMAGE="${IMAGE_NAME}:${VERSION}"
 
@@ -14,8 +14,8 @@ echo "Image: $FULL_IMAGE"
 echo ""
 
 # Build the image
-echo "📦 Building image..."
-docker build -t "${FULL_IMAGE}" .
+echo "📦 Building multi-platform image (amd64, arm64)..."
+docker buildx build --platform linux/amd64,linux/arm64 -t "${FULL_IMAGE}" --load .
 
 # Also tag as latest if building a version
 if [ "$VERSION" != "latest" ]; then
@@ -41,7 +41,8 @@ echo ""
 echo "🧪 To test locally:"
 echo "   # With kubeconfig:"
 echo "   docker run -p 8082:8082 \\"
-echo "     -v ~/.kube/config:/home/kgh/.kube/config:ro \\"
+echo "     -v \$HOME/.kube/config:/app/.kube/config:ro \\"
+echo "     -e KUBECONFIG=/app/.kube/config \\"
 echo "     -e WEBHOOK_SECRET=test \\"
 echo "     ${FULL_IMAGE}"
 echo ""

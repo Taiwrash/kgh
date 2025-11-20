@@ -19,7 +19,8 @@ docker pull taiwrash/kgh:latest
 
 ```bash
 docker run -p 8082:8082 \
-  -v ~/.kube/config:/home/kgh/.kube/config:ro \
+  -v $HOME/.kube/config:/app/.kube/config:ro \
+  -e KUBECONFIG=/app/.kube/config \
   -e WEBHOOK_SECRET=your-secret \
   -e GITHUB_TOKEN=your-token \
   taiwrash/kgh:latest
