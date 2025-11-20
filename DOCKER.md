@@ -1,0 +1,100 @@
+# KGH Docker Image
+
+Production-ready Docker image for KGH (Kubernetes GitOps Homelab) available on Docker Hub.
+
+## Quick Start
+
+```bash
+docker pull taiwrash/kgh:latest
+```
+
+## Available Tags
+
+- `latest` - Latest stable release
+- `1.0.0` - Specific version
+
+## Running Locally
+
+```bash
+docker run -p 8082:8082 \
+  -e WEBHOOK_SECRET=your-secret \
+  -e GITHUB_TOKEN=your-token \
+  taiwrash/kgh:latest
+```
+
+## Image Features
+
+✨ **Production Optimized**
+- Multi-stage build for minimal image size
+- Non-root user for security
+- Built-in health checks
+- Optimized binary with stripped symbols
+
+🔒 **Security**
+- Runs as non-root user (UID 1000)
+- Minimal attack surface
+- CA certificates included
+- Timezone data for accurate logging
+
+📊 **Metadata**
+- Full OCI image labels
+- Version information
+- Build timestamp
+- Source repository link
+
+## Building from Source
+
+```bash
+# Build image
+./build-docker.sh
+
+# Build specific version
+./build-docker.sh 1.0.0
+
+# Push to Docker Hub
+docker login
+docker push taiwrash/kgh:latest
+```
+
+## Image Details
+
+- **Base**: Alpine Linux (minimal)
+- **Size**: ~50MB
+- **Architecture**: amd64
+- **Health Check**: HTTP GET /health every 30s
+- **Exposed Port**: 8082
+
+## Usage in Kubernetes
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kgh
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kgh
+  template:
+    metadata:
+      labels:
+        app: kgh
+    spec:
+      containers:
+      - name: kgh
+        image: taiwrash/kgh:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8082
+        env:
+        - name: WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: kgh-secret
+              key: webhook-secret
+```
+
+## Docker Hub
+
+View on Docker Hub: https://hub.docker.com/r/taiwrash/kgh

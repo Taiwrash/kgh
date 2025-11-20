@@ -1,7 +1,17 @@
 # Build stage
 FROM golang:1.25-alpine AS builder
 
-WORKDIR /app
+# Add metadata
+LABEL org.opencontainers.image.title="KGH - Kubernetes GitOps Homelab"
+LABEL org.opencontainers.image.description="Lightweight GitOps controller for Kubernetes homelab clusters"
+LABEL org.opencontainers.image.authors="Taiwrash"
+LABEL org.opencontainers.image.source="https://github.com/Taiwrash/kgh"
+LABEL org.opencontainers.image.licenses="MIT"
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apk add --no-cache git
 
 # Copy go mod files
 COPY go.mod go.sum ./
@@ -10,21 +20,45 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o kgh ./cmd/kgh
+# Build the application with optimizations
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-w -s -X main.Version=1.0.0 -X main.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    -a -installsuffix cgo \
+    -o kgh ./cmd/kgh
 
-# Final stage
+# Final stage - minimal runtime image
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
+# Add metadata to final image
+LABEL org.opencontainers.image.title="KGH - Kubernetes GitOps Homelab"
+LABEL org.opencontainers.image.description="Lightweight GitOps controller for Kubernetes homelab clusters"
+LABEL org.opencontainers.image.authors="Taiwrash"
+LABEL org.opencontainers.image.source="https://github.com/Taiwrash/kgh"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.version="1.0.0"
 
-WORKDIR /root/
+# Install runtime dependencies
+RUN apk --no-cache add ca-certificates tzdata && \
+    addgroup -g 1000 kgh && \
+    adduser -D -u 1000 -G kgh kgh
+
+WORKDIR /app
 
 # Copy the binary from builder
-COPY --from=builder /app/kgh .
+COPY --from=builder /build/kgh .
+
+# Change ownership
+RUN chown -R kgh:kgh /app
+
+# Switch to non-root user
+USER kgh
 
 # Expose port
 EXPOSE 8082
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8082/health || exit 1
+
 # Run the application
-CMD ["./kgh"]
+ENTRYPOINT ["./kgh"]
