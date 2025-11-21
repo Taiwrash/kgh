@@ -13,12 +13,12 @@ func NewClient(ctx context.Context, token string) *github.Client {
 		// Return unauthenticated client (lower rate limits)
 		return github.NewClient(nil)
 	}
-	
+
 	// Create authenticated client
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
-	
+
 	return github.NewClient(tc)
 }
