@@ -85,38 +85,46 @@ A lightweight GitOps controller for Kubernetes homelab clusters that automatical
 
 ### Option 2: In-Cluster Deployment (Recommended for Production)
 
-1. **Build Docker image**:
+> **📖 For detailed deployment instructions**, see the [Kubernetes Deployment Guide](deployments/kubernetes/README.md)
+
+**Quick Start:**
+
+1. **Using Docker Hub image** (no build required):
    ```bash
-   docker build -t kgh:latest .
+   # Download manifests
+   curl -O https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/secret.yaml.example
+   curl -O https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/deployment.yaml
+   curl -O https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/rbac.yaml
+   curl -O https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/service.yaml
+   
+   # Create your secret
+   cp secret.yaml.example secret.yaml
+   vim secret.yaml  # Add your GitHub token and repo
+   
+   # Deploy
+   kubectl apply -f secret.yaml
+   kubectl apply -f rbac.yaml
+   kubectl apply -f deployment.yaml
+   kubectl apply -f service.yaml
    ```
 
-2. **Create Kubernetes secret**:
+2. **Or build from source**:
    ```bash
-   # Copy the example secret
+   # Build Docker image
+   ./build-docker.sh
+   
+   # Create secret
    cp deployments/kubernetes/secret.yaml.example deployments/kubernetes/secret.yaml
-   
-   # Edit with your actual values
    vim deployments/kubernetes/secret.yaml
+   
+   # Deploy
+   kubectl apply -f deployments/kubernetes/
    ```
 
-3. **Deploy to Kubernetes**:
+3. **Verify deployment**:
    ```bash
-   # Apply RBAC permissions
-   kubectl apply -f deployments/kubernetes/rbac.yaml
-   
-   # Apply secret
-   kubectl apply -f deployments/kubernetes/secret.yaml
-   
-   # Deploy controller
-   kubectl apply -f deployments/kubernetes/deployment.yaml
-   
-   # Expose via service
-   kubectl apply -f deployments/kubernetes/service.yaml
-   ```
-
-4. **Get the external IP**:
-   ```bash
-   kubectl get svc kgh
+   kubectl get pods -l app=kgh
+   kubectl logs -l app=kgh -f
    ```
 
 ## 🔧 GitHub Webhook Configuration

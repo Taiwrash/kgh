@@ -47,8 +47,8 @@ kubectl apply -f deployments/kubernetes/rbac.yaml
 
 # 2. Create secret
 kubectl create secret generic kgh-secret \
-  --from-literal=github-token="YOUR_TOKEN" \
-  --from-literal=webhook-secret="$(openssl rand -hex 32)"
+  --from-literal=GITHUB_TOKEN="YOUR_TOKEN" \
+  --from-literal=WEBHOOK_SECRET="$(openssl rand -hex 32)"
 
 # 3. Deploy controller
 kubectl apply -f deployments/kubernetes/deployment.yaml

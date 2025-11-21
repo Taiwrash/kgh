@@ -106,8 +106,8 @@ else
     
     # Create secret
     kubectl create secret generic kgh-secret \
-        --from-literal=github-token="$GITHUB_TOKEN" \
-        --from-literal=webhook-secret="$WEBHOOK_SECRET" \
+        --from-literal=GITHUB_TOKEN="$GITHUB_TOKEN" \
+        --from-literal=WEBHOOK_SECRET="$WEBHOOK_SECRET" \
         --namespace="$NAMESPACE" \
         --dry-run=client -o yaml | kubectl apply -f -
     

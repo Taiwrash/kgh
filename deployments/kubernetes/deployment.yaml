@@ -29,12 +29,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: kgh-secret
-              key: github-token
+              key: GITHUB_TOKEN
         - name: WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
               name: kgh-secret
-              key: webhook-secret
+              key: WEBHOOK_SECRET
         - name: SERVER_PORT
           value: "8082"
         - name: NAMESPACE
