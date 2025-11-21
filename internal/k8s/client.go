@@ -73,7 +73,7 @@ func getConfig(inCluster bool) (*rest.Config, error) {
 	}
 
 	// Use kubeconfig file (local development)
-	kubeconfig := filepath.Join("~", ".kube", "config")
+	kubeconfig := filepath.Join("homedir.HomeDir()", ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build config from kubeconfig: %w", err)

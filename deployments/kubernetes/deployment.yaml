@@ -18,7 +18,7 @@ spec:
       serviceAccountName: kgh
       containers:
       - name: controller
-        image: paulbouwer/hello-kubernetes:1.8
+        image: taiwrash/kgh:latest
         imagePullPolicy: Always
         ports:
         - name: http
