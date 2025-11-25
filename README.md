@@ -267,11 +267,58 @@ Update RBAC permissions in `deployments/kubernetes/rbac.yaml` to include the req
 
 ## 📚 Examples
 
-See the `deployments/examples/` directory for sample manifests:
+See the `deployments/examples/` directory for ready-to-use manifests:
 
-- `deployment.yaml` - Example Nginx deployment
-- `service.yaml` - Example service
-- `configmap.yaml` - Example ConfigMap
+### Basic Examples
+- **`deployment.yaml`** - Simple Nginx deployment with resource limits
+- **`service.yaml`** - ClusterIP service example
+- **`configmap.yaml`** - ConfigMap with multiple data files
+
+### Complete Application Examples
+
+#### 📊 Homepage Dashboard (`homepage-dashboard.yaml`)
+Deploy [Homepage](https://gethomepage.dev/) - a highly customizable application dashboard for your homelab:
+- ServiceAccount with proper RBAC permissions
+- ConfigMap with customizable dashboard settings
+- Kubernetes integration to monitor your cluster
+- Widgets for cluster metrics, resources, and search
+- Service bookmarks and custom services
+- Ingress for external access
+
+**Quick Deploy:**
+```bash
+kubectl apply -f deployments/examples/homepage-dashboard.yaml
+# Access via http://dashboard.local (configure your ingress/DNS)
+```
+
+**Features:**
+- 📊 Real-time Kubernetes cluster monitoring
+- 🔖 Customizable service bookmarks
+- 🎨 Multiple themes and layouts
+- 📈 Resource usage widgets
+- 🔍 Integrated search
+- 🔗 100+ service integrations
+
+#### 🤖 AI Model with Ollama (`ollama-ai-model.yaml`)
+Run local LLMs (Llama, Gemma, Mistral, etc.) on your cluster:
+- PersistentVolumeClaim for model storage (50GB)
+- Deployment with resource limits (configurable for GPU)
+- Both ClusterIP and NodePort services
+- Ingress for API access
+- Usage instructions ConfigMap
+
+**Quick Deploy:**
+```bash
+kubectl apply -f deployments/examples/ollama-ai-model.yaml
+
+# Access the pod and pull a model
+kubectl exec -it deployment/ollama -- ollama pull gemma:2b
+kubectl exec -it deployment/ollama -- ollama run gemma:2b
+
+# Or access via NodePort: http://<node-ip>:30434
+```
+
+**Supported Models:** llama2, gemma (2b/7b), mistral, codellama, and more!
 
 ## 🤝 Contributing
 

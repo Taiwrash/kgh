@@ -1,0 +1,204 @@
+# Ollama AI Model Deployment Example
+# This manifest deploys Ollama for running local LLMs (Llama, Gemma, Mistral, etc.)
+# Copy and paste this entire file to run AI models on your K8s cluster
+# 
+# After deployment, exec into the pod and run:
+#   ollama pull llama2        # or gemma, mistral, codellama, etc.
+#   ollama run llama2
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-data
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi  # Adjust based on model sizes (models can be 4GB-40GB each)
+  # storageClassName: local-path  # Uncomment and adjust for your storage class
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: default
+  labels:
+    app: ollama
+spec:
+  replicas: 1  # Keep at 1 due to PVC ReadWriteOnce
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama:latest
+        ports:
+        - containerPort: 11434
+          name: http
+        env:
+        - name: OLLAMA_HOST
+          value: "0.0.0.0"
+        volumeMounts:
+        - name: ollama-data
+          mountPath: /root/.ollama
+        resources:
+          limits:
+            cpu: "4"
+            memory: "8Gi"
+            # Uncomment if you have GPU support
+            # nvidia.com/gpu: "1"
+          requests:
+            cpu: "2"
+            memory: "4Gi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 11434
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 11434
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: ollama-data
+        persistentVolumeClaim:
+          claimName: ollama-data
+      # Uncomment for GPU support
+      # nodeSelector:
+      #   nvidia.com/gpu: "true"
+      # tolerations:
+      # - key: nvidia.com/gpu
+      #   operator: Exists
+      #   effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  namespace: default
+  labels:
+    app: ollama
+spec:
+  selector:
+    app: ollama
+  ports:
+  - port: 11434
+    targetPort: 11434
+    name: http
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-nodeport
+  namespace: default
+  labels:
+    app: ollama
+spec:
+  selector:
+    app: ollama
+  ports:
+  - port: 11434
+    targetPort: 11434
+    nodePort: 30434  # Access via http://node-ip:30434
+    name: http
+  type: NodePort
+
+---
+# Optional: Ingress for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ollama
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"  # Allow large model uploads
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx  # Change to your ingress class
+  rules:
+  - host: ollama.local  # Change to your domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ollama
+            port:
+              number: 11434
+
+---
+# Optional: ConfigMap with usage instructions
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ollama-instructions
+  namespace: default
+data:
+  README.md: |
+    # Ollama Usage Instructions
+    
+    ## Access the Ollama pod:
+    ```bash
+    kubectl exec -it deployment/ollama -- /bin/bash
+    ```
+    
+    ## Pull and run models:
+    ```bash
+    # Pull a model (first time)
+    ollama pull llama2        # 3.8GB
+    ollama pull gemma:2b      # 1.4GB (smaller, faster)
+    ollama pull gemma:7b      # 4.8GB
+    ollama pull mistral       # 4.1GB
+    ollama pull codellama     # 3.8GB
+    
+    # Run a model interactively
+    ollama run llama2
+    ollama run gemma:7b
+    
+    # List downloaded models
+    ollama list
+    ```
+    
+    ## Use Ollama API from other pods:
+    ```bash
+    # From within the cluster
+    curl http://ollama:11434/api/generate -d '{
+      "model": "llama2",
+      "prompt": "Why is the sky blue?"
+    }'
+    ```
+    
+    ## Access from outside cluster:
+    - NodePort: http://<node-ip>:30434
+    - Ingress: http://ollama.local (configure DNS/hosts file)
+    
+    ## Popular models and sizes:
+    - gemma:2b (1.4GB) - Fast, good for testing
+    - llama2 (3.8GB) - General purpose
+    - gemma:7b (4.8GB) - Better quality
+    - mistral (4.1GB) - High performance
+    - codellama (3.8GB) - Code generation
+    - llama2:70b (39GB) - Best quality (requires lots of RAM)
+    
+    ## Resource requirements:
+    - 2B models: 4GB RAM minimum
+    - 7B models: 8GB RAM minimum
+    - 13B models: 16GB RAM minimum
+    - 70B models: 64GB RAM minimum

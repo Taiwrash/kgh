@@ -283,6 +283,158 @@
             font-size: 0.95rem;
         }
 
+        /* Use Cases Section */
+        .use-cases-section {
+            margin: 4rem 0;
+        }
+
+        .use-cases-section h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .use-cases-section>p {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .use-case-card {
+            background: rgba(5, 18, 9, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .use-case-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-5px);
+            background: rgba(5, 18, 9, 0.6);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .use-case-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .use-case-icon {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .use-case-title {
+            flex: 1;
+        }
+
+        .use-case-title h3 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .use-case-title .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--accent-primary);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .use-case-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        .use-case-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .use-case-features li {
+            color: var(--text-secondary);
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .use-case-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-primary);
+            font-weight: bold;
+        }
+
+        .deploy-command {
+            background: rgba(3, 11, 5, 0.8);
+            border: 1px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .deploy-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .deploy-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .deploy-btn:active {
+            transform: scale(0.98);
+        }
+
+        .deploy-btn.copied {
+            background: var(--success);
+        }
+
         /* Links */
         .links {
             display: flex;
@@ -437,6 +589,98 @@
                 </div>
             </div>
 
+            <!-- Use Cases Section -->
+            <div class="use-cases-section">
+                <h2>🎯 Ready-to-Deploy Use Cases</h2>
+                <p>Choose a use case and deploy it to your cluster with one command</p>
+
+                <div class="use-cases-grid">
+                    <!-- Homepage Dashboard -->
+                    <div class="use-case-card">
+                        <div class="use-case-header">
+                            <div class="use-case-icon">📊</div>
+                            <div class="use-case-title">
+                                <h3>Homepage Dashboard</h3>
+                                <span class="badge">POPULAR</span>
+                            </div>
+                        </div>
+                        <p class="use-case-description">
+                            Deploy a beautiful, customizable dashboard to manage all your homelab services. Monitor your
+                            Kubernetes cluster, organize bookmarks, and integrate with 100+ services.
+                        </p>
+                        <ul class="use-case-features">
+                            <li>Real-time cluster monitoring</li>
+                            <li>100+ service integrations</li>
+                            <li>Customizable themes & widgets</li>
+                            <li>Resource usage metrics</li>
+                        </ul>
+                        <div class="deploy-command" id="homepage-cmd">kubectl apply -f
+                            https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/examples/homepage-dashboard.yaml
+                        </div>
+                        <button class="deploy-btn" onclick="copyDeployCommand('homepage-cmd', this)">
+                            <span>📋</span>
+                            <span class="btn-text">Copy Deploy Command</span>
+                        </button>
+                    </div>
+
+                    <!-- Ollama AI -->
+                    <div class="use-case-card">
+                        <div class="use-case-header">
+                            <div class="use-case-icon">🤖</div>
+                            <div class="use-case-title">
+                                <h3>Ollama AI Models</h3>
+                                <span class="badge">AI POWERED</span>
+                            </div>
+                        </div>
+                        <p class="use-case-description">
+                            Run local LLMs (Llama, Gemma, Mistral) on your Kubernetes cluster. Perfect for private AI
+                            workloads without cloud dependencies.
+                        </p>
+                        <ul class="use-case-features">
+                            <li>Run Llama 2, Gemma, Mistral</li>
+                            <li>50GB persistent storage</li>
+                            <li>GPU support ready</li>
+                            <li>Multiple access methods</li>
+                        </ul>
+                        <div class="deploy-command" id="ollama-cmd">kubectl apply -f
+                            https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/examples/ollama-ai-model.yaml
+                        </div>
+                        <button class="deploy-btn" onclick="copyDeployCommand('ollama-cmd', this)">
+                            <span>📋</span>
+                            <span class="btn-text">Copy Deploy Command</span>
+                        </button>
+                    </div>
+
+                    <!-- Simple Homepage -->
+                    <div class="use-case-card">
+                        <div class="use-case-header">
+                            <div class="use-case-icon">🏠</div>
+                            <div class="use-case-title">
+                                <h3>Simple Homepage</h3>
+                                <span class="badge">QUICK START</span>
+                            </div>
+                        </div>
+                        <p class="use-case-description">
+                            Deploy a beautiful static homepage with modern design. Perfect for a simple landing page or
+                            status page for your homelab.
+                        </p>
+                        <ul class="use-case-features">
+                            <li>Modern glassmorphism design</li>
+                            <li>Fully customizable HTML/CSS</li>
+                            <li>Lightweight nginx server</li>
+                            <li>Ingress ready</li>
+                        </ul>
+                        <div class="deploy-command" id="simple-cmd">kubectl apply -f
+                            https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/examples/homepage-complete.yaml
+                        </div>
+                        <button class="deploy-btn" onclick="copyDeployCommand('simple-cmd', this)">
+                            <span>📋</span>
+                            <span class="btn-text">Copy Deploy Command</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="links">
                 <a href="https://github.com/Taiwrash/kgh" class="btn btn-primary" target="_blank">
                     📖 View on GitHub
@@ -479,6 +723,37 @@
                     copyBtn.classList.remove('copied');
                     copyIcon.textContent = '📋';
                     copyText.textContent = 'Copy';
+                    tooltip.classList.remove('show');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy. Please copy manually.');
+            });
+        }
+
+        // Copy deployment command for use cases
+        function copyDeployCommand(commandId, button) {
+            const commandElement = document.getElementById(commandId);
+            const command = commandElement.textContent.trim();
+            const btnText = button.querySelector('.btn-text');
+            const tooltip = document.getElementById('tooltip');
+
+            navigator.clipboard.writeText(command).then(() => {
+                // Update button
+                button.classList.add('copied');
+                const originalText = btnText.textContent;
+                btnText.textContent = 'Copied! ✓';
+
+                // Show tooltip
+                tooltip.classList.add('show');
+                const rect = button.getBoundingClientRect();
+                tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+                tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    btnText.textContent = originalText;
                     tooltip.classList.remove('show');
                 }, 2000);
             }).catch(err => {
