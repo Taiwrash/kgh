@@ -142,6 +142,21 @@ A lightweight GitOps controller for Kubernetes homelab clusters that automatical
 
 4. Test by pushing a YAML file to your repository!
 
+## 🎯 Quick Example Deployment
+
+Want to try KGH with ready-made examples? Deploy any example with one command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Taiwrash/kgh/main/deploy-example.sh | bash
+```
+
+This interactive script lets you choose from:
+- 📊 **Homepage Dashboard** - Full homelab dashboard
+- 🤖 **Ollama AI** - Run LLMs locally
+- 🏠 **Simple Homepage** - Clean landing page
+- ✨ **Awesome Homepage** - Stunning animated design
+- 🚀 **All Examples** - Deploy everything!
+
 ## 📝 Usage
 
 ### Basic Workflow

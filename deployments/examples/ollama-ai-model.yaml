@@ -1,10 +1,11 @@
-# Ollama AI Model Deployment Example
-# This manifest deploys Ollama for running local LLMs (Llama, Gemma, Mistral, etc.)
-# Copy and paste this entire file to run AI models on your K8s cluster
+# Ollama + Open WebUI - Complete AI Stack
+# This manifest deploys Ollama with Open WebUI for a complete local AI experience
+# Copy and paste this entire file to run AI models with a beautiful web interface
 # 
-# After deployment, exec into the pod and run:
-#   ollama pull llama2        # or gemma, mistral, codellama, etc.
-#   ollama run llama2
+# After deployment:
+# 1. Access Open WebUI at http://openwebui.local (or via NodePort/port-forward)
+# 2. Pull models: kubectl exec -it deployment/ollama -- ollama pull gemma:2b
+# 3. Chat with your models through the web interface!
 
 ---
 apiVersion: v1
@@ -17,7 +18,21 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 50Gi  # Adjust based on model sizes (models can be 4GB-40GB each)
+      storage: 50Gi  # Adjust based on model sizes
+  # storageClassName: local-path  # Uncomment and adjust for your storage class
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openwebui-data
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi  # For Open WebUI data
   # storageClassName: local-path  # Uncomment and adjust for your storage class
 
 ---
@@ -29,7 +44,7 @@ metadata:
   labels:
     app: ollama
 spec:
-  replicas: 1  # Keep at 1 due to PVC ReadWriteOnce
+  replicas: 1
   selector:
     matchLabels:
       app: ollama
@@ -75,13 +90,6 @@ spec:
       - name: ollama-data
         persistentVolumeClaim:
           claimName: ollama-data
-      # Uncomment for GPU support
-      # nodeSelector:
-      #   nvidia.com/gpu: "true"
-      # tolerations:
-      # - key: nvidia.com/gpu
-      #   operator: Exists
-      #   effect: NoSchedule
 
 ---
 apiVersion: v1
@@ -101,104 +109,251 @@ spec:
   type: ClusterIP
 
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-webui
+  namespace: default
+  labels:
+    app: open-webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: open-webui
+  template:
+    metadata:
+      labels:
+        app: open-webui
+    spec:
+      containers:
+      - name: open-webui
+        image: ghcr.io/open-webui/open-webui:main
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: OLLAMA_BASE_URL
+          value: "http://ollama:11434"
+        - name: WEBUI_SECRET_KEY
+          value: "change-this-to-a-random-secret"  # Change this!
+        - name: WEBUI_AUTH
+          value: "True"  # Set to False to disable authentication
+        volumeMounts:
+        - name: webui-data
+          mountPath: /app/backend/data
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: webui-data
+        persistentVolumeClaim:
+          claimName: openwebui-data
+
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ollama-nodeport
+  name: open-webui
   namespace: default
   labels:
-    app: ollama
+    app: open-webui
 spec:
   selector:
-    app: ollama
+    app: open-webui
   ports:
-  - port: 11434
-    targetPort: 11434
-    nodePort: 30434  # Access via http://node-ip:30434
+  - port: 8080
+    targetPort: 8080
+    name: http
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-webui-nodeport
+  namespace: default
+  labels:
+    app: open-webui
+spec:
+  selector:
+    app: open-webui
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30800  # Access via http://node-ip:30800
     name: http
   type: NodePort
 
 ---
-# Optional: Ingress for external access
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ollama
+  name: open-webui
   namespace: default
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"  # Allow large model uploads
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   ingressClassName: nginx  # Change to your ingress class
   rules:
-  - host: ollama.local  # Change to your domain
+  - host: ai.local  # Change to your domain
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: ollama
+            name: open-webui
             port:
-              number: 11434
+              number: 8080
+  # Uncomment for TLS/HTTPS
+  # tls:
+  # - hosts:
+  #   - ai.local
+  #   secretName: open-webui-tls
 
 ---
-# Optional: ConfigMap with usage instructions
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ollama-instructions
+  name: ai-stack-instructions
   namespace: default
 data:
   README.md: |
-    # Ollama Usage Instructions
+    # Ollama + Open WebUI - Complete AI Stack
     
-    ## Access the Ollama pod:
+    ## 🚀 Quick Start
+    
+    ### 1. Access Open WebUI
+    
+    **Option A: NodePort (Easiest)**
     ```bash
-    kubectl exec -it deployment/ollama -- /bin/bash
+    # Access via browser
+    http://<node-ip>:30800
     ```
     
-    ## Pull and run models:
+    **Option B: Port Forward**
     ```bash
-    # Pull a model (first time)
-    ollama pull llama2        # 3.8GB
-    ollama pull gemma:2b      # 1.4GB (smaller, faster)
-    ollama pull gemma:7b      # 4.8GB
-    ollama pull mistral       # 4.1GB
-    ollama pull codellama     # 3.8GB
-    
-    # Run a model interactively
-    ollama run llama2
-    ollama run gemma:7b
-    
-    # List downloaded models
-    ollama list
+    kubectl port-forward svc/open-webui 8080:8080 --address 0.0.0.0
+    # Then visit: http://<server-ip>:8080
     ```
     
-    ## Use Ollama API from other pods:
+    **Option C: Ingress**
     ```bash
-    # From within the cluster
-    curl http://ollama:11434/api/generate -d '{
-      "model": "llama2",
-      "prompt": "Why is the sky blue?"
-    }'
+    # Add to /etc/hosts: <ingress-ip> ai.local
+    # Then visit: http://ai.local
     ```
     
-    ## Access from outside cluster:
-    - NodePort: http://<node-ip>:30434
-    - Ingress: http://ollama.local (configure DNS/hosts file)
+    ### 2. First Time Setup
     
-    ## Popular models and sizes:
-    - gemma:2b (1.4GB) - Fast, good for testing
-    - llama2 (3.8GB) - General purpose
-    - gemma:7b (4.8GB) - Better quality
-    - mistral (4.1GB) - High performance
-    - codellama (3.8GB) - Code generation
-    - llama2:70b (39GB) - Best quality (requires lots of RAM)
+    1. Open Open WebUI in your browser
+    2. Create an admin account (first user becomes admin)
+    3. You're ready to chat!
     
-    ## Resource requirements:
-    - 2B models: 4GB RAM minimum
-    - 7B models: 8GB RAM minimum
-    - 13B models: 16GB RAM minimum
-    - 70B models: 64GB RAM minimum
+    ### 3. Pull AI Models
+    
+    **From the Open WebUI interface:**
+    - Click on your profile → Settings → Models
+    - Enter model name (e.g., "gemma:2b", "llama2", "mistral")
+    - Click "Pull Model"
+    
+    **Or from command line:**
+    ```bash
+    kubectl exec -it deployment/ollama -- ollama pull gemma:2b
+    kubectl exec -it deployment/ollama -- ollama pull llama2
+    kubectl exec -it deployment/ollama -- ollama pull mistral
+    ```
+    
+    ### 4. Start Chatting!
+    
+    - Select a model from the dropdown
+    - Start chatting with your local AI
+    - All data stays on your homelab!
+    
+    ## 📊 Popular Models
+    
+    | Model | Size | RAM Required | Best For |
+    |-------|------|--------------|----------|
+    | gemma:2b | 1.4GB | 4GB | Fast responses, testing |
+    | llama2 | 3.8GB | 8GB | General purpose |
+    | gemma:7b | 4.8GB | 8GB | Better quality |
+    | mistral | 4.1GB | 8GB | High performance |
+    | codellama | 3.8GB | 8GB | Code generation |
+    | llama2:13b | 7.4GB | 16GB | High quality |
+    | llama2:70b | 39GB | 64GB | Best quality |
+    
+    ## 🔧 Configuration
+    
+    ### Change Authentication
+    Edit the deployment:
+    ```bash
+    kubectl set env deployment/open-webui WEBUI_AUTH=False
+    ```
+    
+    ### Change Secret Key
+    ```bash
+    kubectl set env deployment/open-webui WEBUI_SECRET_KEY=your-random-secret
+    ```
+    
+    ### Add GPU Support
+    Uncomment GPU lines in ollama deployment and ensure your cluster has GPU support.
+    
+    ## 📈 Monitoring
+    
+    ```bash
+    # Check pods
+    kubectl get pods -l app=ollama
+    kubectl get pods -l app=open-webui
+    
+    # Check logs
+    kubectl logs -f deployment/ollama
+    kubectl logs -f deployment/open-webui
+    
+    # Check storage
+    kubectl get pvc
+    ```
+    
+    ## 🎯 Features
+    
+    - ✅ ChatGPT-like interface
+    - ✅ Multiple model support
+    - ✅ Conversation history
+    - ✅ User management
+    - ✅ Dark/Light themes
+    - ✅ Markdown support
+    - ✅ Code highlighting
+    - ✅ Document upload (RAG)
+    - ✅ Model management
+    - ✅ 100% private and local
+    
+    ## 🔒 Security Notes
+    
+    - Change WEBUI_SECRET_KEY to a random value
+    - Enable authentication (WEBUI_AUTH=True)
+    - Use Ingress with TLS for production
+    - Keep models and data on encrypted storage
+    
+    ## 💡 Tips
+    
+    - Start with smaller models (gemma:2b) to test
+    - Monitor resource usage with `kubectl top pods`
+    - Use persistent volumes to keep models across restarts
+    - Pull models during off-peak hours (they're large!)

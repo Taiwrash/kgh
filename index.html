@@ -539,7 +539,7 @@
         <div class="main-card">
             <div class="install-section">
                 <h2>Get Started in Seconds</h2>
-                <p>One command to install. Push to Git, deploy to Kubernetes.</p>
+                <p>One command to install KGH, or deploy examples directly.</p>
 
                 <div class="command-box">
                     <div class="command-text" id="installCommand">curl -fsSL
@@ -547,6 +547,17 @@
                     <button class="copy-btn" onclick="copyCommand()">
                         <span id="copyIcon">📋</span>
                         <span id="copyText">Copy</span>
+                    </button>
+                </div>
+
+                <p style="margin-top: 1.5rem; opacity: 0.8;">Or deploy examples directly:</p>
+
+                <div class="command-box">
+                    <div class="command-text" id="exampleCommand">curl -fsSL
+                        https://raw.githubusercontent.com/Taiwrash/kgh/main/deploy-example.sh | bash</div>
+                    <button class="copy-btn" onclick="copyExampleCommand()">
+                        <span id="copyIcon2">📋</span>
+                        <span id="copyText2">Copy</span>
                     </button>
                 </div>
             </div>
@@ -646,34 +657,6 @@
                             https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/examples/ollama-ai-model.yaml
                         </div>
                         <button class="deploy-btn" onclick="copyDeployCommand('ollama-cmd', this)">
-                            <span>📋</span>
-                            <span class="btn-text">Copy Deploy Command</span>
-                        </button>
-                    </div>
-
-                    <!-- Simple Homepage -->
-                    <div class="use-case-card">
-                        <div class="use-case-header">
-                            <div class="use-case-icon">🏠</div>
-                            <div class="use-case-title">
-                                <h3>Simple Homepage</h3>
-                                <span class="badge">QUICK START</span>
-                            </div>
-                        </div>
-                        <p class="use-case-description">
-                            Deploy a beautiful static homepage with modern design. Perfect for a simple landing page or
-                            status page for your homelab.
-                        </p>
-                        <ul class="use-case-features">
-                            <li>Modern glassmorphism design</li>
-                            <li>Fully customizable HTML/CSS</li>
-                            <li>Lightweight nginx server</li>
-                            <li>Ingress ready</li>
-                        </ul>
-                        <div class="deploy-command" id="simple-cmd">kubectl apply -f
-                            https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/examples/homepage-complete.yaml
-                        </div>
-                        <button class="deploy-btn" onclick="copyDeployCommand('simple-cmd', this)">
                             <span>📋</span>
                             <span class="btn-text">Copy Deploy Command</span>
                         </button>
@@ -782,6 +765,35 @@
                 setTimeout(() => {
                     button.classList.remove('copied');
                     btnText.textContent = originalText;
+                    tooltip.classList.remove('show');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy. Please copy manually.');
+            });
+        }
+
+        // Copy example deployment command
+        function copyExampleCommand() {
+            const command = document.getElementById('exampleCommand').textContent.trim();
+            const copyBtn = document.querySelectorAll('.copy-btn')[1];
+            const copyIcon = document.getElementById('copyIcon2');
+            const copyText = document.getElementById('copyText2');
+            const tooltip = document.getElementById('tooltip');
+
+            navigator.clipboard.writeText(command).then(() => {
+                copyBtn.classList.add('copied');
+                copyIcon.textContent = '✓';
+                copyText.textContent = 'Copied!';
+
+                tooltip.classList.add('show');
+                tooltip.style.left = (window.innerWidth / 2 - tooltip.offsetWidth / 2) + 'px';
+                tooltip.style.top = '50%';
+
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyIcon.textContent = '📋';
+                    copyText.textContent = 'Copy';
                     tooltip.classList.remove('show');
                 }, 2000);
             }).catch(err => {
