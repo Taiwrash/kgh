@@ -81,7 +81,50 @@ Edit the ConfigMap to:
 
 ---
 
-#### 5. **ollama-ai-model.yaml** 🤖
+#### 5. **awesome-homepage.yaml** ✨
+**Awesome Modern Homepage with Animations**
+
+A visually stunning, animated homepage with modern design elements.
+
+Includes:
+- ✅ Animated particle background
+- ✅ Glassmorphism design elements
+- ✅ Service cards with hover effects
+- ✅ Stats dashboard
+- ✅ Smooth CSS animations
+- ✅ Fully responsive layout
+- ✅ Customizable service links
+
+**Deploy:**
+```bash
+kubectl apply -f awesome-homepage.yaml
+```
+
+**Access:**
+- Update `host: awesome.local` to your domain in the Ingress section
+- Configure your DNS or `/etc/hosts` file
+- Visit `http://awesome.local`
+
+**Features:**
+- 🎨 Modern gradient backgrounds
+- ✨ 50 animated floating particles
+- 💎 Glassmorphism UI elements
+- 📊 Stats cards with pulse animations
+- 🎯 Service grid with 6 customizable cards
+- 🔗 Quick links section
+- 📱 Fully responsive design
+
+**Customize:**
+Edit the ConfigMap HTML to:
+- Change service names and descriptions
+- Update service URLs in the JavaScript section
+- Modify colors and gradients in CSS
+- Add or remove service cards
+- Customize stats and quick links
+
+---
+
+#### 6. **ollama-ai-model.yaml** 🤖
 **Run AI models locally on your cluster**
 
 Includes:
