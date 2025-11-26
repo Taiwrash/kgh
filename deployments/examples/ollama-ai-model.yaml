@@ -134,7 +134,7 @@ spec:
           name: http
         env:
         - name: OLLAMA_BASE_URL
-          value: "http://ollama:11434"
+          value: "http://ollama.default.svc.cluster.local:11434"  # Use FQDN to bypass DNS issues
         - name: WEBUI_SECRET_KEY
           value: "change-this-to-a-random-secret"  # Change this!
         - name: WEBUI_AUTH
