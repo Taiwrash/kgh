@@ -68,12 +68,12 @@ spec:
         resources:
           limits:
             cpu: "2"
-            memory: "4Gi"
+            memory: "8Gi"
             # Uncomment if you have GPU support
             # nvidia.com/gpu: "1"
           requests:
             cpu: "500m"
-            memory: "2Gi"
+            memory: "4Gi"
         livenessProbe:
           httpGet:
             path: /
