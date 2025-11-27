@@ -126,6 +126,8 @@ spec:
       labels:
         app: open-webui
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: cp
       containers:
       - name: open-webui
         image: ghcr.io/open-webui/open-webui:main
