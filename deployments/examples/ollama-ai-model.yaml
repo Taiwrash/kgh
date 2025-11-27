@@ -141,6 +141,12 @@ spec:
           value: "change-this-to-a-random-secret"  # Change this!
         - name: WEBUI_AUTH
           value: "True"  # Set to False to disable authentication
+        - name: RAG_EMBEDDING_ENGINE
+          value: ""  # Disable RAG to work without internet
+        - name: RAG_EMBEDDING_MODEL
+          value: ""  # Disable embedding model downloads
+        - name: ENABLE_RAG_WEB_SEARCH
+          value: "false"  # Disable web search
         volumeMounts:
         - name: webui-data
           mountPath: /app/backend/data
@@ -155,13 +161,13 @@ spec:
           httpGet:
             path: /
             port: 8080
-          initialDelaySeconds: 30
+          initialDelaySeconds: 300
           periodSeconds: 30
         readinessProbe:
           httpGet:
             path: /
             port: 8080
-          initialDelaySeconds: 10
+          initialDelaySeconds: 300
           periodSeconds: 10
       volumes:
       - name: webui-data
