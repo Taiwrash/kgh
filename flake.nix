@@ -10,9 +10,8 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-      in
-      {
-        packages.default = pkgs.buildGoModule {
+
+        kgh = pkgs.buildGoModule {
           pname = "kgh";
           version = "0.1.0";
           src = ./.;
@@ -27,11 +26,14 @@
             maintainers = with maintainers; [ ];
           };
         };
+      in
+      {
+        packages.default = kgh;
 
         packages.dockerImage = pkgs.dockerTools.buildLayeredImage {
           name = "taiwrash/kgh";
           tag = "latest";
-          contents = [ self.packages.${system}.default ];
+          contents = [ kgh pkgs.cacert ];
           config = {
             Cmd = [ "/bin/kgh" ];
             ExposedPorts = {
