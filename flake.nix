@@ -1,0 +1,53 @@
+{
+  description = "KGH - Kubernetes GitOps Homelab Controller";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+      in
+      {
+        packages.default = pkgs.buildGoModule {
+          pname = "kgh";
+          version = "0.1.0";
+          src = ./.;
+
+          # This hash will need to be updated after the first failed build
+          vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+
+          meta = with pkgs.lib; {
+            description = "Kubernetes GitOps Homelab Controller";
+            homepage = "https://github.com/Taiwrash/kgh";
+            license = licenses.mit;
+            maintainers = with maintainers; [ ];
+          };
+        };
+
+        packages.dockerImage = pkgs.dockerTools.buildLayeredImage {
+          name = "taiwrash/kgh";
+          tag = "latest";
+          contents = [ self.packages.${system}.default ];
+          config = {
+            Cmd = [ "/bin/kgh" ];
+            ExposedPorts = {
+              "8080/tcp" = {};
+            };
+          };
+        };
+
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            go
+            gopls
+            gotools
+            go-tools
+          ];
+        };
+      }
+    );
+}
