@@ -18,7 +18,7 @@
           src = ./.;
 
           # This hash will need to be updated after the first failed build
-          vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+          vendorHash = "sha256-zOZFqQfCv03RTK2bWCLfoTvDhMXUrcOBosfcXbkibGg=";
 
           meta = with pkgs.lib; {
             description = "Kubernetes GitOps Homelab Controller";
