@@ -25,7 +25,9 @@ jobs:
       run: |
         nix build .#dockerImage
         docker load < result
+        docker tag taiwrash/kgh:latest taiwrash/kgh:${{ github.sha }}
         docker push taiwrash/kgh:latest
+        docker push taiwrash/kgh:${{ github.sha }}
 
   build-self-hosted:
     runs-on: [self-hosted, nixos]
