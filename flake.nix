@@ -11,13 +11,15 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        kghBase = pkgs.buildGoModule {
+        kgh = pkgs.buildGoModule {
           pname = "kgh";
           version = "0.1.0";
           src = ./.;
 
           # This hash will need to be updated after the first failed build
           vendorHash = "sha256-zOZFqQfCv03RTK2bWCLfoTvDhMXUrcOBosfcXbkibGg=";
+
+          CGO_ENABLED = 0;
 
           subPackages = [ "cmd/kgh" ];
 
@@ -28,10 +30,6 @@
             maintainers = with maintainers; [ ];
           };
         };
-
-        kgh = kghBase.overrideAttrs (old: {
-          env = (old.env or {}) // { CGO_ENABLED = 0; };
-        });
       in
       {
         packages.default = kgh;
