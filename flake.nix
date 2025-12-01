@@ -11,7 +11,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        kgh = pkgs.buildGoModule {
+        kghBase = pkgs.buildGoModule {
           pname = "kgh";
           version = "0.1.0";
           src = ./.;
@@ -27,7 +27,9 @@
             license = licenses.mit;
             maintainers = with maintainers; [ ];
           };
-        }.overrideAttrs (old: {
+        });
+
+        kgh = kghBase.overrideAttrs (old: {
           env = (old.env or {}) // { CGO_ENABLED = 0; };
         });
       in
