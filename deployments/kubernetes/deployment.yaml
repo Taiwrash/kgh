@@ -18,7 +18,7 @@ spec:
       serviceAccountName: kgh
       containers:
       - name: controller
-        image: taiwrash/kgh:latest
+        image: taiwrash/kgh:v20251202-005628
         imagePullPolicy: Always
         ports:
         - name: http

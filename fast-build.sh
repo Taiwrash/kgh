@@ -5,22 +5,24 @@
 set -e
 
 IMAGE_NAME="taiwrash/kgh"
-VERSION="latest"
+# Generate a timestamp-based tag
+TAG="v$(date +%Y%m%d-%H%M%S)"
 
 echo "🚀 Fast Multi-Platform Build"
 echo "=============================="
+echo "🏷️  Tag: $TAG"
 echo ""
 
 # Build for AMD64 (Linux servers)
 echo "📦 Building AMD64 binary..."
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build \
-    -ldflags="-w -s" \
+    -ldflags="-w -s -X main.Version=$TAG -X main.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     -o bin/kgh-amd64 ./cmd/kgh
 
 # Build for ARM64 (Mac, Raspberry Pi)
 echo "📦 Building ARM64 binary..."
 GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build \
-    -ldflags="-w -s" \
+    -ldflags="-w -s -X main.Version=$TAG -X main.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     -o bin/kgh-arm64 ./cmd/kgh
 
 echo ""
@@ -36,6 +38,7 @@ docker buildx build \
     --platform linux/amd64 \
     --build-arg TARGETARCH=amd64 \
     -t ${IMAGE_NAME}:latest-amd64 \
+    -t ${IMAGE_NAME}:${TAG}-amd64 \
     -f Dockerfile.fast \
     --push .
 
@@ -45,6 +48,7 @@ docker buildx build \
     --platform linux/arm64 \
     --build-arg TARGETARCH=arm64 \
     -t ${IMAGE_NAME}:latest-arm64 \
+    -t ${IMAGE_NAME}:${TAG}-arm64 \
     -f Dockerfile.fast \
     --push .
 
@@ -52,15 +56,32 @@ echo ""
 echo "📋 Creating multi-platform manifest..."
 docker buildx imagetools create \
     -t ${IMAGE_NAME}:latest \
+    -t ${IMAGE_NAME}:${TAG} \
     ${IMAGE_NAME}:latest-amd64 \
     ${IMAGE_NAME}:latest-arm64
 
 echo ""
 echo "✅ Multi-platform image pushed to Docker Hub!"
+echo "   Tags: latest, $TAG"
+
+echo ""
+echo "📝 Updating deployment manifest..."
+DEPLOYMENT_FILE="deployments/kubernetes/deployment.yaml"
+if [ -f "$DEPLOYMENT_FILE" ]; then
+    # Use sed to replace the image tag
+    # This regex looks for 'image: taiwrash/kgh:.*' and replaces it with the new tag
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS sed requires an empty string for -i
+        sed -i '' "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${TAG}|" "$DEPLOYMENT_FILE"
+    else
+        sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${TAG}|" "$DEPLOYMENT_FILE"
+    fi
+    echo "   Updated $DEPLOYMENT_FILE with image: ${IMAGE_NAME}:${TAG}"
+else
+    echo "   ⚠️  Deployment file not found: $DEPLOYMENT_FILE"
+fi
+
 echo ""
 echo "🧪 Test on AMD64 (NixOS):"
-echo "   docker run -p 8082:8082 \\"
-echo "     -v \$HOME/.kube/config:/app/.kube/config:ro \\"
-echo "     -e KUBECONFIG=/app/.kube/config \\"
-echo "     -e WEBHOOK_SECRET=test \\"
-echo "     ${IMAGE_NAME}:latest"
+echo "   kubectl apply -f $DEPLOYMENT_FILE"
+
