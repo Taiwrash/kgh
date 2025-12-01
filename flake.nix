@@ -27,7 +27,7 @@
             license = licenses.mit;
             maintainers = with maintainers; [ ];
           };
-        });
+        };
 
         kgh = kghBase.overrideAttrs (old: {
           env = (old.env or {}) // { CGO_ENABLED = 0; };
