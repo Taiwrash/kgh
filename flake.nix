@@ -19,7 +19,7 @@
           # This hash will need to be updated after the first failed build
           vendorHash = "sha256-zOZFqQfCv03RTK2bWCLfoTvDhMXUrcOBosfcXbkibGg=";
 
-          CGO_ENABLED = 0;
+          env.CGO_ENABLED = 0;
           subPackages = [ "cmd/kgh" ];
 
           meta = with pkgs.lib; {

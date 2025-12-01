@@ -29,9 +29,9 @@ jobs:
         docker push taiwrash/kgh:latest
         docker push taiwrash/kgh:${{ github.sha }}
 
-  build-self-hosted:
-    runs-on: [self-hosted, nixos]
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build with Nix
-      run: nix build
+  # build-self-hosted:
+  #   runs-on: [self-hosted, nixos]
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Build with Nix
+  #     run: nix build
