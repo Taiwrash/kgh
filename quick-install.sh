@@ -65,10 +65,41 @@ kubectl create secret generic kgh-secret \
     --namespace="$NAMESPACE" \
     --dry-run=client -o yaml | kubectl apply -f -
 
+# Check for Ingress Controller
+USE_INGRESS=false
+check_ingress_controller() {
+    echo "Checking for Ingress Controller..."
+    if kubectl get pods -n kube-system -l app.kubernetes.io/name=traefik 2>/dev/null | grep -q "Running"; then
+        echo -e "${GREEN}✓ Traefik Ingress Controller found${NC}"
+        USE_INGRESS=true
+        return
+    fi
+     if kubectl get pods -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx 2>/dev/null | grep -q "Running"; then
+        echo -e "${GREEN}✓ NGINX Ingress Controller found${NC}"
+        USE_INGRESS=true
+        return
+    fi
+    echo "No common Ingress Controller found (Traefik/NGINX). using LoadBalancer."
+}
+check_ingress_controller
+
 # Apply deployment
 echo "Deploying controller..."
 kubectl apply -f https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/deployment.yaml -n "$NAMESPACE"
-kubectl apply -f https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/service.yaml -n "$NAMESPACE"
+
+if [ "$USE_INGRESS" = true ]; then
+    echo "Deploying Service (ClusterIP) and Ingress..."
+    # Download service, patch to ClusterIP and apply
+    curl -fsSL https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/service.yaml | \
+    sed 's/type: LoadBalancer/type: ClusterIP/' | \
+    kubectl apply -f - -n "$NAMESPACE"
+    
+    # Apply Ingress
+    kubectl apply -f https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/ingress.yaml -n "$NAMESPACE"
+else
+    echo "Deploying Service (LoadBalancer)..."
+    kubectl apply -f https://raw.githubusercontent.com/Taiwrash/kgh/main/deployments/kubernetes/service.yaml -n "$NAMESPACE"
+fi
 
 echo ""
 echo -e "${GREEN}╔═══════════════════════════════════════════════╗${NC}"
