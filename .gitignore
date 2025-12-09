@@ -1,6 +1,6 @@
 # Binaries
 main
-/kgh
+kgh
 gitops-controller
 *.exe
 *.dll
