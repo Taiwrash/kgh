@@ -165,4 +165,20 @@ echo "   kubectl logs -f deployment/kgh -n $NAMESPACE"
 echo ""
 echo "3. Push a YAML file to your repo and watch it deploy!"
 echo ""
+echo ""
+echo "4. (Optional) Setup Remote Access with Cloudflare Tunnel:"
+if ! command -v cloudflared &> /dev/null; then
+    read -p "   Do you want to install cloudflared for remote access? (y/n) " INSTALL_CF
+    if [ "$INSTALL_CF" == "y" ]; then
+        ./setup-cloudflare.sh --install-only
+    fi
+fi
+
+if command -v cloudflared &> /dev/null; then
+    echo "   Run ./setup-cloudflare.sh to start a secure tunnel to your cluster."
+else
+    echo "   You can install it later by running ./setup-cloudflare.sh"
+fi
+
+echo ""
 echo -e "${GREEN}Happy GitOps-ing! 🚀${NC}"

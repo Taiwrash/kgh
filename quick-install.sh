@@ -35,7 +35,7 @@ GITHUB_TOKEN="${3:-}"
 
 # Check kubectl
 if ! command -v kubectl &> /dev/null; then
-    echo -e "${RED}✗ kubectl not found${NC}"
+    echo -e "${RED}✗ kubectl not found | install kubectl to continue | you can try k3s or minikube${NC}"
     exit 1
 fi
 echo -e "${GREEN}✓ kubectl found${NC}"

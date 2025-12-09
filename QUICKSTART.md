@@ -1,49 +1,226 @@
-# Quick Start Guide
+# Homelab Installation Guide
 
-This is a quick reference for common tasks. See [README.md](README.md) for full documentation.
+This guide helps you deploy the GitOps controller to your multi-node Kubernetes homelab cluster.
 
-## Local Development
+## Installation Methods
+
+### Method 1: Quick Install Script (Recommended)
+
+The easiest way to install:
 
 ```bash
-# 1. Setup
-make dev-setup
-# Edit .env with your values
-
-# 2. Run locally
-make run
+./install.sh
 ```
 
-## Deploy to Kubernetes
+The script will:
+- ✅ Check prerequisites (kubectl, helm)
+- ✅ Prompt for configuration (GitHub repo, webhook secret)
+- ✅ Auto-generate webhook secret if needed
+- ✅ Install using Helm (if available) or kubectl
+- ✅ Provide next steps with webhook URL
+
+### Method 2: Helm Install
+
+If you prefer manual Helm installation:
 
 ```bash
-# 1. Build image
-make docker-build
+# Generate webhook secret
+WEBHOOK_SECRET=$(openssl rand -hex 32)
 
-# 2. Create secret
-cp deployments/kubernetes/secret.yaml.example deployments/kubernetes/secret.yaml
-# Edit with your GitHub token and webhook secret
+# Install with Helm
+helm install kgh ./helm/kgh \
+  --namespace default \
+  --set github.webhookSecret="$WEBHOOK_SECRET" \
+  --set github.token="YOUR_GITHUB_TOKEN"
 
-# 3. Deploy
-kubectl apply -f deployments/kubernetes/secret.yaml
-make deploy
-
-# 4. Get webhook URL
+# Get webhook URL
 kubectl get svc kgh
 ```
 
-## Configure GitHub Webhook
+### Method 3: kubectl Install
 
-1. Go to your repo → Settings → Webhooks → Add webhook
-2. Payload URL: `http://<EXTERNAL-IP>/webhook`
-3. Content type: `application/json`
-4. Secret: Your `WEBHOOK_SECRET` value
-5. Events: Just the push event
-
-## Test GitOps Flow
+For manual kubectl installation:
 
 ```bash
-# Create a deployment
-cat > nginx.yaml <<EOF
+# 1. Apply RBAC
+kubectl apply -f deployments/kubernetes/rbac.yaml
+
+# 2. Create secret
+kubectl create secret generic kgh-secret \
+  --from-literal=GITHUB_TOKEN="YOUR_TOKEN" \
+  --from-literal=WEBHOOK_SECRET="$(openssl rand -hex 32)"
+
+# 3. Deploy controller
+kubectl apply -f deployments/kubernetes/deployment.yaml
+kubectl apply -f deployments/kubernetes/service.yaml
+```
+
+## Configuration Options
+
+### Helm Values
+
+Customize your installation by editing `helm/kgh/values.yaml`:
+
+```yaml
+# Number of replicas (for HA)
+replicaCount: 1
+
+# Docker image
+image:
+  repository: kgh
+  tag: "latest"
+
+# Service type (LoadBalancer, NodePort, ClusterIP)
+service:
+  type: LoadBalancer
+  port: 80
+
+# Resource limits
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# GitHub configuration
+github:
+  token: ""  # Optional for public repos
+  webhookSecret: ""  # Required
+
+# Target namespace for deployments
+namespace: default
+```
+
+## Multi-Node Considerations
+
+### High Availability
+
+For multi-node clusters, you can run multiple replicas:
+
+```bash
+helm upgrade kgh ./helm/kgh \
+  --set replicaCount=2
+```
+
+### Node Affinity
+
+To ensure the controller runs on specific nodes:
+
+```yaml
+# Add to values.yaml
+nodeSelector:
+  node-role: control-plane
+
+# Or use affinity
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+```
+
+### Storage Considerations
+
+The controller is stateless, so no persistent storage is needed.
+
+## Network Configuration
+
+### LoadBalancer
+
+For homelab with MetalLB or similar:
+
+```yaml
+service:
+  type: LoadBalancer
+```
+
+### NodePort
+
+For clusters without LoadBalancer:
+
+```yaml
+service:
+  type: NodePort
+  nodePort: 30080  # Optional: specify port
+```
+
+Then access via: `http://<NODE-IP>:30080/webhook`
+
+### Ingress
+
+For production homelab with Ingress controller:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kgh
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - gitops.yourdomain.com
+    secretName: gitops-tls
+  rules:
+  - host: gitops.yourdomain.com
+    http:
+      paths:
+      - path: /webhook
+        pathType: Prefix
+        backend:
+          service:
+            name: kgh
+            port:
+              number: 80
+```
+
+## Post-Installation
+
+### 1. Verify Installation
+
+```bash
+# Check deployment
+kubectl get deployment kgh
+
+# Check pods
+kubectl get pods -l app=kgh
+
+# View logs
+kubectl logs -f deployment/kgh
+```
+
+### 2. Get Webhook URL
+
+```bash
+# For LoadBalancer
+kubectl get svc kgh
+
+# For NodePort
+NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+NODE_PORT=$(kubectl get svc kgh -o jsonpath='{.spec.ports[0].nodePort}')
+echo "Webhook URL: http://$NODE_IP:$NODE_PORT/webhook"
+```
+
+### 3. Configure GitHub Webhook
+
+1. Go to your repository settings
+2. Webhooks → Add webhook
+3. Configure:
+   - Payload URL: `http://YOUR-IP/webhook`
+   - Content type: `application/json`
+   - Secret: Your webhook secret
+   - Events: Just the push event
+
+### 4. Test Deployment
+
+```bash
+# Create a test deployment in your repo
+cat > test-app.yaml <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -63,34 +240,126 @@ spec:
         image: nginx:alpine
 EOF
 
-# Push to Git
-git add nginx.yaml
-git commit -m "Deploy nginx"
+# Commit and push
+git add test-app.yaml
+git commit -m "Test GitOps deployment"
 git push
 
-# Watch it deploy!
+# Watch it deploy
 kubectl get deployments -w
-```
-
-## Useful Commands
-
-```bash
-make help          # Show all commands
-make logs          # View controller logs
-make status        # Check deployment status
-make example-deploy # Deploy example resources
 ```
 
 ## Troubleshooting
 
-**Webhook not working?**
-- Check GitHub webhook deliveries
-- View logs: `make logs`
-- Verify secret matches
+### Pods Not Starting
 
-**Resources not applying?**
-- Check RBAC permissions
-- Validate YAML: `kubectl apply --dry-run=client -f file.yaml`
-- Check controller logs
+```bash
+# Check pod status
+kubectl describe pod -l app=kgh
 
-For more help, see [README.md](README.md#-troubleshooting)
+# Check logs
+kubectl logs -l app=kgh
+```
+
+### Webhook Not Working
+
+```bash
+# Check service
+kubectl get svc kgh
+
+# Test health endpoint
+curl http://<SERVICE-IP>/health
+
+# Check GitHub webhook deliveries
+# Go to repo → Settings → Webhooks → Recent Deliveries
+```
+
+### RBAC Issues
+
+```bash
+# Verify service account
+kubectl get sa kgh
+
+# Check cluster role binding
+kubectl get clusterrolebinding kgh
+```
+
+## Upgrading
+
+### Helm Upgrade
+
+```bash
+helm upgrade kgh ./helm/kgh \
+  --reuse-values \
+  --set image.tag=new-version
+```
+
+### kubectl Upgrade
+
+```bash
+# Update deployment
+kubectl apply -f deployments/kubernetes/deployment.yaml
+
+# Restart pods
+kubectl rollout restart deployment/kgh
+```
+
+## Uninstalling
+
+### Helm Uninstall
+
+```bash
+helm uninstall kgh
+```
+
+### kubectl Uninstall
+
+```bash
+kubectl delete -f deployments/kubernetes/
+kubectl delete clusterrolebinding kgh
+kubectl delete clusterrole kgh
+```
+
+## Advanced Configuration
+
+### Custom Namespace
+
+Deploy to a specific namespace:
+
+```bash
+helm install kgh ./helm/kgh \
+  --namespace gitops-system \
+  --create-namespace \
+  --set namespace=default  # Target namespace for deployments
+```
+
+### Multiple Controllers
+
+Run separate controllers for different namespaces:
+
+```bash
+# Controller for production
+helm install gitops-prod ./helm/kgh \
+  --namespace gitops-system \
+  --set namespace=production
+
+# Controller for staging
+helm install gitops-staging ./helm/kgh \
+  --namespace gitops-system \
+  --set namespace=staging
+```
+
+## Security Best Practices
+
+1. **Use Secrets**: Never commit tokens to Git
+2. **Rotate Secrets**: Regularly rotate webhook secrets and tokens
+3. **Network Policies**: Restrict controller network access
+4. **RBAC**: Use least privilege principle
+5. **TLS**: Use HTTPS with valid certificates for webhooks
+
+## Support
+
+For issues or questions:
+- Check logs: `kubectl logs -f deployment/kgh`
+- Review GitHub webhook deliveries
+- See main [README.md](../README.md) for more details
