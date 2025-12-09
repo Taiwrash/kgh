@@ -3,10 +3,10 @@ kind: Ingress
 metadata:
   name: kgh
   namespace: default
-  annotations:
-    # Use Traefik (standard in K3s)
-    kubernetes.io/ingress.class: traefik
+  # annotations:
+    # kubernetes.io/ingress.class: traefik
 spec:
+  ingressClassName: traefik
   rules:
   - host: kgh.local
     http:
