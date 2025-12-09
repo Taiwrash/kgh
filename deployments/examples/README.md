@@ -1,6 +1,6 @@
 # KGH Examples Directory
 
-This directory contains ready-to-use Kubernetes manifests that you can copy and paste to deploy applications using KGH (Kubernetes GitOps Hub).
+This directory contains ready-to-use Kubernetes manifests that you can copy and paste to deploy applications using KGH (Kubernetes GitOps Homelab).
 
 ## 📋 Available Examples
 
@@ -41,15 +41,15 @@ kubectl apply -f configmap.yaml
 ### Complete Application Examples
 
 #### 4. **homepage-dashboard.yaml** 📊
-**Operations Dashboard - Centralized Observability**
+**Homepage - Application Dashboard for your Homelab**
 
-[Homepage](https://gethomepage.dev/) is a highly customizable ops dashboard with 100+ integrations.
+[Homepage](https://gethomepage.dev/) is a highly customizable dashboard with 100+ service integrations.
 
 Includes:
 - ✅ ServiceAccount with RBAC permissions
 - ✅ ConfigMap with customizable dashboard settings
 - ✅ Kubernetes cluster monitoring widgets
-- ✅ Service bookmarks and critical services
+- ✅ Service bookmarks and custom services
 - ✅ Resource usage and metrics widgets
 - ✅ Deployment with health checks
 - ✅ ClusterIP service and Ingress
@@ -73,7 +73,7 @@ Edit the ConfigMap to:
 
 **Features:**
 - 📊 Real-time Kubernetes cluster monitoring
-- 🔖 Organize all your operational tools
+- 🔖 Organize all your homelab services
 - 🎨 Multiple themes (dark/light)
 - 📈 CPU, memory, and network metrics
 - 🔍 Integrated search (DuckDuckGo, Google, etc.)
@@ -82,9 +82,9 @@ Edit the ConfigMap to:
 ---
 
 #### 5. **awesome-homepage.yaml** ✨
-**Internal Developer Portal - Modern & Responsive**
+**Awesome Modern Homepage with Animations**
 
-A visually stunning, animated portal for your engineering teams.
+A visually stunning, animated homepage with modern design elements.
 
 Includes:
 - ✅ Animated particle background
@@ -125,7 +125,7 @@ Edit the ConfigMap HTML to:
 ---
 
 #### 6. **ollama-ai-model.yaml** 🤖
-**Private AI Infrastructure - Secure & Offline**
+**Run AI models locally on your cluster**
 
 Includes:
 - ✅ 50GB PersistentVolumeClaim for model storage

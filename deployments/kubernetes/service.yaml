@@ -6,7 +6,7 @@ metadata:
   labels:
     app: kgh
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - port: 80
     targetPort: 8082

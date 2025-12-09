@@ -1,11 +1,6 @@
-# KGH - Kubernetes GitOps Hub
+# KGH - Kubernetes GitOps Homelab
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/Taiwrash/kgh)](https://goreportcard.com/report/github.com/Taiwrash/kgh)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub release](https://img.shields.io/github/release/Taiwrash/kgh.svg)](https://github.com/Taiwrash/kgh/releases)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-
-A lightweight GitOps controller for any Kubernetes cluster (Edge, Enterprise, or Homelab) that automatically applies changes from your Git repository. Edit YAML files, commit to Git, and watch your cluster update automatically!
+A lightweight GitOps controller for Kubernetes homelab clusters that automatically applies changes from your Git repository. Edit YAML files, commit to Git, and watch your cluster update automatically!
 
 ## 🚀 Features
 
@@ -19,7 +14,7 @@ A lightweight GitOps controller for any Kubernetes cluster (Edge, Enterprise, or
 
 ## 📋 Prerequisites
 
-- Kubernetes cluster (Standard, Edge, K3s, Minikube, Kind, etc.)
+- Kubernetes cluster (homelab, Minikube, Kind, K3s, etc.)
 - Go 1.25+ (for building from source)
 - GitHub repository for your manifests
 - `kubectl` configured to access your cluster
@@ -35,7 +30,7 @@ A lightweight GitOps controller for any Kubernetes cluster (Edge, Enterprise, or
        │ (Webhook)
        ▼
 ┌─────────────────────┐
-│   KGH - Kubernetes GitOps Hub     │
+│ KGH - Kubernetes GitOps Homelab   │
 │                     │
 │ ┌─────────────────┐ │
 │ │ Webhook Handler │ │
@@ -156,8 +151,8 @@ curl -fsSL https://raw.githubusercontent.com/Taiwrash/kgh/main/deploy-example.sh
 ```
 
 This interactive script lets you choose from:
-- 📊 **Operations Dashboard** - Centralized observability
-- 🤖 **Private AI Infrastructure** - Run LLMs securely offline
+- 📊 **Homepage Dashboard** - Full homelab dashboard
+- 🤖 **Ollama AI** - Run LLMs locally
 - 🏠 **Simple Homepage** - Clean landing page
 - ✨ **Awesome Homepage** - Stunning animated design
 - 🚀 **All Examples** - Deploy everything!
@@ -296,8 +291,8 @@ See the `deployments/examples/` directory for ready-to-use manifests:
 
 ### Complete Application Examples
 
-#### 📊 Operations Dashboard (`homepage-dashboard.yaml`)
-Deploy [Homepage](https://gethomepage.dev/) - a highly customizable operations dashboard for your clusters:
+#### 📊 Homepage Dashboard (`homepage-dashboard.yaml`)
+Deploy [Homepage](https://gethomepage.dev/) - a highly customizable application dashboard for your homelab:
 - ServiceAccount with proper RBAC permissions
 - ConfigMap with customizable dashboard settings
 - Kubernetes integration to monitor your cluster
@@ -319,8 +314,8 @@ kubectl apply -f deployments/examples/homepage-dashboard.yaml
 - 🔍 Integrated search
 - 🔗 100+ service integrations
 
-#### 🤖 Private AI Infrastructure (`ollama-ai-model.yaml`)
-Run secure, offline LLMs (Llama, Gemma, Mistral, etc.) on your cluster:
+#### 🤖 AI Model with Ollama (`ollama-ai-model.yaml`)
+Run local LLMs (Llama, Gemma, Mistral, etc.) on your cluster:
 - PersistentVolumeClaim for model storage (50GB)
 - Deployment with resource limits (configurable for GPU)
 - Both ClusterIP and NodePort services
@@ -342,27 +337,11 @@ kubectl exec -it deployment/ollama -- ollama run gemma:2b
 
 ## 🤝 Contributing
 
-Contributions are welcome! We love pull requests from everyone. By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
-
-Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
-
-1.  Fork the repo
-2.  Create your feature branch (`git checkout -b feature/amazing-feature`)
-3.  Commit your changes (`git commit -m 'Add some amazing feature'`)
-4.  Push to the branch (`git push origin feature/amazing-feature`)
-5.  Open a Pull Request
-
-## 🌍 Community
-
-Join the conversation and help build the best lightweight GitOps tool!
-
-- **[Discussions](https://github.com/Taiwrash/kgh/discussions)**: Ask questions, share ideas, and show off your setup.
-- **[Issues](https://github.com/Taiwrash/kgh/issues)**: Report bugs or request new features.
-- **[Star the Repo](https://github.com/Taiwrash/kgh)**: Show your support! ⭐
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT License - feel free to use this in your edge, enterprise, or homelab environments!
+MIT License - feel free to use this in your homelab or production environments!
 
 ## 🙏 Acknowledgments
 
@@ -370,10 +349,6 @@ Built with:
 - [client-go](https://github.com/kubernetes/client-go) - Kubernetes Go client
 - [go-github](https://github.com/google/go-github) - GitHub API client
 - [oauth2](https://golang.org/x/oauth2) - OAuth2 authentication
-
-## 📚 Supports
-
-- [x] Google Cloud credits are provided for this project as part of #AISprint.
 
 ---
 
